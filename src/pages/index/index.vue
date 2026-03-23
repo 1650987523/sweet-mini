@@ -40,7 +40,6 @@ onLoad(async (options) => {
 
 /**
  * 加载轮播图
- 
  */
 async function loadBanner() {
   loading.value = true

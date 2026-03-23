@@ -139,6 +139,22 @@ function onRightScroll(e: any) {
   }
 }
 
+const filteredCategories = computed((): ProductCategoryVO[] => {
+  if (!searchKeyword.value.trim()) {
+    return rawCategories.value || []
+  }
+
+  const keyword = searchKeyword.value.toLowerCase()
+  return rawCategories.value
+    .map(category => ({
+      ...category,
+      products: (category.products || []).filter(product =>
+        product.productName?.toLowerCase().includes(keyword),
+      ),
+    }))
+    .filter(category => category.products.length > 0)
+})
+
 /**
  * 加载分类偏移量
  */
@@ -204,25 +220,6 @@ const categoryIconMap: Record<string, string> = {
  */
 onShow(() => {
   loadCategories()
-})
-
-/**
- * 搜索
- */
-const filteredCategories = computed((): ProductCategoryVO[] => {
-  if (!searchKeyword.value.trim()) {
-    return rawCategories.value || []
-  }
-
-  const keyword = searchKeyword.value.toLowerCase()
-  return rawCategories.value
-    .map(category => ({
-      ...category,
-      products: (category.products || []).filter(product =>
-        product.productName?.toLowerCase().includes(keyword),
-      ),
-    }))
-    .filter(category => category.products.length > 0)
 })
 
 /**
@@ -365,8 +362,8 @@ function getCategoryIcon(categoryName: string): string {
           <!-- 商品列表 -->
           <view class="p-3">
             <view
-              v-for="(product, index) in category.products"
-              :key="index"
+              v-for="(product, productIndex) in category.products"
+              :key="productIndex"
               class="mb-3 rounded-2xl bg-white p-3"
             >
               <!-- 商品信息 -->

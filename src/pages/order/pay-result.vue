@@ -4,6 +4,13 @@ import { useCartStore } from '@/store/cart'
 
 const { navigateTo, redirectTo } = uni
 
+const orderNo = ref('')
+const status = ref<'success' | 'failed'>('success')
+const cartStore = useCartStore()
+const countdown = ref(3)
+
+const isSuccess = computed(() => status.value === 'success')
+
 definePage({
   style: {
     navigationBarTitleText: '支付结果',
@@ -17,13 +24,6 @@ definePage({
     }
   },
 })
-
-const orderNo = ref('')
-const status = ref<'success' | 'failed'>('success')
-const cartStore = useCartStore()
-const countdown = ref(3)
-
-const isSuccess = computed(() => status.value === 'success')
 
 // 倒计时结束后自动跳转到订单列表
 onMounted(() => {

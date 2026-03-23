@@ -72,9 +72,10 @@ async function submitOrder() {
     // 跳转到支付页面（不在这里清空购物车，等支付成功后再清空）
     uni.navigateTo({ url: `/pages/order/pay?orderNo=${orderNo}` })
   }
-  catch {
+  catch (error: any) {
     uni.hideLoading()
-    uni.showToast({ title: '提交失败，请重试', icon: 'none' })
+    const message = error?.msg || error?.message || '提交失败，请重试'
+    uni.showToast({ title: message, icon: 'none' })
   }
 }
 </script>

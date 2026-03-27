@@ -10,9 +10,12 @@ onLaunch(async (options) => {
   // 静默登录：如果未登录，自动跳转到登录页
   const tokenStore = useTokenStore()
   if (!tokenStore.hasLogin) {
-    uni.reLaunch({
-      url: LOGIN_PAGE,
-    })
+    // 传递 scene 参数给登录页（扫码进入时）
+    let url = LOGIN_PAGE
+    if (options.query?.scene) {
+      url += `?scene=${options.query.scene}`
+    }
+    uni.reLaunch({ url })
   }
 })
 onShow((options) => {

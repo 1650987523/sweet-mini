@@ -37,6 +37,8 @@ export enum OrderStatusEnum {
   REFUNDING = 4,
   /** 已退款 */
   REFUNDED = 5,
+  /** 驳回 */
+  REJECTED = 6,
 }
 
 /**
@@ -49,6 +51,7 @@ export const OrderStatusTextMap: Record<OrderStatusEnum, string> = {
   [OrderStatusEnum.CANCELLED]: '已取消',
   [OrderStatusEnum.REFUNDING]: '退款中',
   [OrderStatusEnum.REFUNDED]: '已退款',
+  [OrderStatusEnum.REJECTED]: '驳回',
 }
 
 /**
@@ -61,6 +64,7 @@ export const OrderStatusColorMap: Record<OrderStatusEnum, string> = {
   [OrderStatusEnum.CANCELLED]: '#999',
   [OrderStatusEnum.REFUNDING]: '#ff9500',
   [OrderStatusEnum.REFUNDED]: '#07c160',
+  [OrderStatusEnum.REJECTED]: '#ee0a24',
 }
 
 /**
@@ -73,6 +77,7 @@ export const OrderStatusIconMap: Record<OrderStatusEnum, string> = {
   [OrderStatusEnum.CANCELLED]: 'close-circle', // 已取消 → 叉
   [OrderStatusEnum.REFUNDING]: 'reload', // 退款中 → 循环
   [OrderStatusEnum.REFUNDED]: 'checkmark-circle', // 已退款 → 勾
+  [OrderStatusEnum.REJECTED]: 'close-circle', // 驳回 → 叉
 }
 /**
  * 根据状态码，生成对应的错误信息

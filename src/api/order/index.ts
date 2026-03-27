@@ -55,3 +55,11 @@ export function cancelOrder(orderNo: string, userId: number) {
     userId,
   })
 }
+
+/**
+ * 申请退款
+ * @param data 退款申请请求参数
+ */
+export function applyRefund(data: import('@/api/types').ApplyRefundRequest) {
+  return http.post('/order/refund/apply', data)
+}

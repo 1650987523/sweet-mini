@@ -28,11 +28,15 @@ const loading = ref(true)
  */
 onLoad(async (options) => {
   console.log('================================')
-  console.log('进入首页，完整参数:', options)
+  console.log('扫码进入小程序首页onload, 完整参数:', options)
   console.log('================================')
 
-  if (options.scene) {
-    await parseScanCode(options.scene)
+  // 优先从 options.scene 获取（首次扫码进入）
+  // 其次从 storage 获取（登录后返回）
+  const scene = options.scene || uni.getStorageSync('scene')
+
+  if (scene) {
+    await parseScanCode(scene)
   }
 
   loadBanner()
@@ -54,7 +58,7 @@ async function loadBanner() {
 
 // 轮播图切换事件
 function change(index: number) {
-  console.log('轮播图切换:', index)
+  // console.log('轮播图切换:', index)
 }
 
 // 轮播图点击事件
@@ -69,6 +73,19 @@ function click(item: BannerInfo) {
 function goToStore() {
   uni.navigateTo({
     url: '/pages/store/index',
+  })
+}
+
+/**
+ * 跳转到点单页面
+ */
+function goToOrder() {
+  if (!currentStore.value) {
+    uni.showToast({ title: '请先选择门店', icon: 'none' })
+    return
+  }
+  uni.switchTab({
+    url: '/pages/product/index',
   })
 }
 </script>
@@ -90,7 +107,7 @@ function goToStore() {
     <up-card :border="false" title="操作">
       <template #body>
         <view class="flex items-center">
-          <view class="flex flex-1 flex-col items-center justify-center">
+          <view class="flex flex-1 flex-col items-center justify-center" @click="goToOrder">
             <up-icon name="shopping-cart-fill" size="32" color="#3b82f6" />
             <up-gap height="4px" />
             <text class="text-base">点单</text>
@@ -112,7 +129,7 @@ function goToStore() {
             <text class="text-base">{{ currentStore.name }}</text>
             <text v-if="currentStore.qrcodeNo" class="text-sm text-gray-500">桌号：{{ currentStore.qrcodeNo }}</text>
           </view>
-          <up-icon name="arrow-right" color="#999" />
+          <!-- <up-icon name="arrow-right" color="#999" /> -->
         </view>
       </template>
     </up-card>
@@ -120,7 +137,7 @@ function goToStore() {
       <template #body>
         <view class="flex items-center justify-between py-2">
           <text class="text-gray-400">暂未选择门店</text>
-          <up-icon name="arrow-right" color="#999" />
+          <!-- <up-icon name="arrow-right" color="#999" /> -->
         </view>
       </template>
     </up-card>

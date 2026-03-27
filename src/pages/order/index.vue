@@ -153,12 +153,15 @@ async function handleCancel(orderNo: string) {
     content: '确定要取消订单吗？',
   })
   if (res.confirm) {
+    uni.showLoading({ title: '取消中...' })
     try {
       await cancelOrder(orderNo, userId.value)
+      uni.hideLoading()
       uni.showToast({ title: '订单已取消', icon: 'success' })
       onSearch()
     }
     catch (err) {
+      uni.hideLoading()
       console.error('取消订单失败:', err)
       uni.showToast({ title: '取消失败', icon: 'none' })
     }

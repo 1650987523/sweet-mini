@@ -1,8 +1,8 @@
 <script lang="ts" setup>
-import type { OrderDetail } from '@/api/types'
+import type { ApplyRefundRequest, OrderDetail } from '@/api/types'
 import { onLoad } from '@dcloudio/uni-app'
 import { computed, ref } from 'vue'
-import { cancelOrder, getOrderDetail } from '@/api/order'
+import { applyRefund, cancelOrder, getOrderDetail } from '@/api/order'
 import { getPayParams } from '@/api/pay'
 import { OrderStatusColorMap, OrderStatusEnum, OrderStatusIconMap, OrderStatusTextMap } from '@/http/tools/enum'
 import { useUserStore } from '@/store/user'
@@ -130,6 +130,60 @@ const status = computed(() => {
 
 // 是否显示操作按钮（待支付状态）
 const isUnpaid = computed(() => order.value?.orderStatus === OrderStatusEnum.UNPAID)
+
+// 是否显示退款按钮（制作中、已完成状态可以退款）
+const canRefund = computed(() => {
+  const refundableStatuses = [
+    OrderStatusEnum.MAKING, // 制作中
+    OrderStatusEnum.COMPLETED, // 已完成
+  ]
+  return refundableStatuses.includes(order.value?.orderStatus)
+})
+
+// 退款弹窗相关
+const showRefundDialog = ref(false)
+const refundForm = ref<Partial<ApplyRefundRequest>>({
+  refundReason: '',
+})
+
+/**
+ * 打开退款申请弹窗
+ */
+function openRefundDialog() {
+  if (!order.value)
+    return
+
+  refundForm.value = {
+    orderNo: order.value.orderNo,
+    userId: userId.value,
+    storeId: order.value.storeId,
+    orderAmount: order.value.totalAmount,
+    refundAmount: order.value.payAmount,
+    refundType: 2,
+    refundReason: '',
+  }
+  showRefundDialog.value = true
+}
+
+/**
+ * 提交退款申请
+ */
+async function submitRefund() {
+  if (!refundForm.value.refundReason) {
+    uni.showToast({ title: '请选择或填写退款原因', icon: 'none' })
+    return
+  }
+
+  try {
+    await applyRefund(refundForm.value as ApplyRefundRequest)
+    uni.showToast({ title: '退款申请已提交', icon: 'success' })
+    showRefundDialog.value = false
+    loadOrderDetail() // 刷新订单状态
+  }
+  catch (e) {
+    console.error('提交退款申请失败', e)
+  }
+}
 </script>
 
 <template>
@@ -211,13 +265,58 @@ const isUnpaid = computed(() => order.value?.orderStatus === OrderStatusEnum.UNP
         立即支付
       </up-button>
     </view>
+
+    <!-- 退款按钮（已完成订单） -->
+    <view v-if="canRefund" class="action-bar">
+      <up-button class="action-btn refund-btn" plain color="#ff9900" @click="openRefundDialog">
+        申请退款
+      </up-button>
+    </view>
+
+    <!-- 退款申请弹窗 -->
+    <!-- eslint-disable-next-line @typescript-eslint/no-explicit-any -->
+    <!-- @ts-ignore -->
+    <up-popup v-model:show="showRefundDialog" round>
+      <view class="refund-dialog">
+        <view class="dialog-title">
+          申请退款
+        </view>
+        <view class="dialog-content">
+          <view class="form-item">
+            <text class="form-label">退款金额</text>
+            <text class="form-value">¥{{ formatPrice(refundForm.refundAmount || 0) }}</text>
+          </view>
+          <view class="form-item">
+            <text class="form-label">订单金额</text>
+            <text class="form-value">¥{{ formatPrice(refundForm.orderAmount || 0) }}</text>
+          </view>
+          <view class="form-item">
+            <text class="form-label required">退款原因</text>
+            <textarea
+              v-model="refundForm.refundReason"
+              class="form-textarea"
+              placeholder="请输入退款原因"
+              :maxlength="200"
+              :auto-height="true"
+            />
+          </view>
+        </view>
+        <view class="dialog-actions">
+          <up-button class="dialog-btn" plain @click="showRefundDialog = false">
+            取消
+          </up-button>
+          <up-button class="dialog-btn" color="#ff9900" @click="submitRefund">
+            提交申请
+          </up-button>
+        </view>
+      </view>
+    </up-popup>
   </view>
 </template>
 
 <style lang="scss" scoped>
 .pb-safe {
-  padding-bottom: constant(safe-area-inset-bottom);
-  padding-bottom: env(safe-area-inset-bottom);
+  padding-bottom: calc(100rpx + env(safe-area-inset-bottom));
 }
 
 .status-section {
@@ -376,5 +475,97 @@ const isUnpaid = computed(() => order.value?.orderStatus === OrderStatusEnum.UNP
 
 .pay-btn {
   width: 200rpx;
+}
+
+.refund-btn {
+  width: 200rpx;
+}
+
+.refund-dialog {
+  padding: 32rpx;
+  background-color: #fff;
+  min-height: 600rpx;
+  border-radius: 24rpx 24rpx 0 0;
+}
+
+.dialog-title {
+  font-size: 36rpx;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 32rpx;
+}
+
+.dialog-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+  margin-bottom: 32rpx;
+}
+
+.form-item {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.form-label {
+  font-size: 28rpx;
+  color: #666;
+}
+
+.form-label.required::before {
+  content: '*';
+  color: #ff4444;
+  margin-right: 4rpx;
+}
+
+.form-value {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.reason-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+
+.reason-option {
+  padding: 12rpx 24rpx;
+  background-color: #f5f5f5;
+  border-radius: 32rpx;
+  font-size: 26rpx;
+  color: #666;
+  transition: all 0.2s;
+}
+
+.reason-option.selected {
+  background-color: #ff9900;
+  color: #fff;
+}
+
+.form-textarea {
+  width: 100%;
+  min-height: 200rpx;
+  padding: 16rpx;
+  border: 2rpx solid #f0f0f0;
+  border-radius: 12rpx;
+  font-size: 28rpx;
+  background-color: #f9f9f9;
+  margin-top: 12rpx;
+}
+
+.dialog-actions {
+  display: flex;
+  gap: 16rpx;
+  justify-content: space-between;
+}
+
+.dialog-btn {
+  flex: 1;
+  height: 72rpx;
+  border-radius: 36rpx;
+  font-size: 30rpx;
 }
 </style>

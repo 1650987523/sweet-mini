@@ -49,6 +49,7 @@ export interface ProductWithCategoriesParams {
 
 // 导出商品相关类型（包含订单和分页）
 export type {
+  ApplyRefundRequest,
   Attribute,
   AttributeValue,
   CreateOrderRequest,

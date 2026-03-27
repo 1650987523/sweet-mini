@@ -281,3 +281,14 @@ export interface OrderPageVo {
 
 // 订单列表分页响应
 export type OrderPageResponse = PageResponse<OrderPageVo>
+
+// 申请退款请求参数（对应后端 /order/refund/apply）
+export interface ApplyRefundRequest {
+  orderNo: string // 订单号
+  userId: number // 用户 ID
+  storeId: number // 门店 ID
+  orderAmount: number // 订单总金额（单位：分）
+  refundAmount: number // 申请退款金额（单位：分）
+  refundType: number // 退款类型：1=门店后台发起，2=用户发起
+  refundReason: string // 退款原因
+}

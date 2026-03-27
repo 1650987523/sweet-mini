@@ -36,6 +36,23 @@ export interface ScanCodeOptions {
 }
 
 /**
+ * 从小程序码 path 中提取 scene 参数
+ * @param path 小程序码 path，格式：pages/index/index?scene=1-A02
+ * @returns 提取的 scene 参数
+ */
+export function extractSceneFromPath(path: string): string | null {
+  if (!path)
+    return null
+
+  // path 格式：pages/index/index?scene=1-A02
+  const match = path.match(/scene=([^&]+)/)
+  if (match && match[1]) {
+    return decodeURIComponent(match[1])
+  }
+  return null
+}
+
+/**
  * 调用微信扫码，并解析结果
  * @param options 扫码选项配置
  * @returns 解析后的门店信息
@@ -44,8 +61,10 @@ export async function scanCode(options?: ScanCodeOptions) {
   return new Promise<{ storeId: number, qrcodeNo: string }>((resolve, reject) => {
     uni.scanCode({
       success: async (res) => {
+        console.log('点单页面扫码结果:', res)
         try {
-          const result = await parseScanCode(res.result)
+          // 从 res.path 提取 scene 参数
+          const result = await parseScanCode(extractSceneFromPath(res.path))
 
           // 执行回调
           options?.onSuccess?.(result)

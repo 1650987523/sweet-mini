@@ -172,7 +172,7 @@ pnpm type-check
 
 ## 开发者
 
-- 作者：菲鸽
+- 作者：whr
 - GitHub: https://github.com/1650987523/sweet-mini
 
 ## License

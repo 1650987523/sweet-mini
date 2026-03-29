@@ -1,98 +1,180 @@
-<p align="center">
-  <a href="https://github.com/unibest-tech/unibest">
-    <img width="160" src="./src/static/logo.svg">
-  </a>
-</p>
+# Sweet Mini - 智能点餐小程序
 
-<h1 align="center">
-  <a href="https://github.com/unibest-tech/unibest" target="_blank">unibest - 最好的 uniapp 开发框架</a>
-</h1>
+基于 `unibest` 模板开发的智能点餐小程序，支持扫码点餐、订单管理、支付、退款等功能。
 
-<div align="center">
-旧仓库 codercup 进不去了，star 也拿不回来，这里也展示一下那个地址的 star.
+## 技术栈
 
-[![GitHub Repo stars](https://img.shields.io/github/stars/codercup/unibest?style=flat&logo=github)](https://github.com/codercup/unibest)
-[![GitHub forks](https://img.shields.io/github/forks/codercup/unibest?style=flat&logo=github)](https://github.com/codercup/unibest)
+- **框架**: uni-app + Vue3 + TypeScript + Vite5
+- **UI 库**: uView Plus
+- **状态管理**: Pinia
+- **HTTP 请求**: alova
+- **CSS 方案**: UnoCSS + SCSS
+- **页面滚动**: z-paging
 
-</div>
+## 主要功能
 
-<div align="center">
+### 1. 门店管理
+- 门店列表展示
+- 扫码自动设置门店和桌号
+- 支持小程序码识别（scene 参数解析）
 
-[![GitHub Repo stars](https://img.shields.io/github/stars/feige996/unibest?style=flat&logo=github)](https://github.com/feige996/unibest)
-[![GitHub forks](https://img.shields.io/github/forks/feige996/unibest?style=flat&logo=github)](https://github.com/feige996/unibest)
-[![star](https://gitee.com/feige996/unibest/badge/star.svg?theme=dark)](https://gitee.com/feige996/unibest/stargazers)
-[![fork](https://gitee.com/feige996/unibest/badge/fork.svg?theme=dark)](https://gitee.com/feige996/unibest/members)
-![node version](https://img.shields.io/badge/node-%3E%3D18-green)
-![pnpm version](https://img.shields.io/badge/pnpm-%3E%3D7.30-green)
-![GitHub package.json version (subfolder of monorepo)](https://img.shields.io/github/package-json/v/feige996/unibest)
-![GitHub License](https://img.shields.io/github/license/feige996/unibest)
+### 2. 商品点单
+- 商品分类展示
+- 商品详情查看（规格选择、图片轮播）
+- 购物车管理（加减商品、清空）
+- 商品搜索
 
-</div>
+### 3. 订单系统
+- **订单列表**: 支持按状态筛选（全部、待支付、制作中、已完成、已取消、退款中、已退款、驳回）
+- **订单详情**: 查看订单商品信息、费用明细、订单状态
+- **订单操作**:
+  - 取消订单（待支付状态）
+  - 立即支付（待支付状态）
+  - 申请退款（制作中、已完成状态）
 
-`unibest` —— 最好的 `uniapp` 开发模板，由 `uniapp` + `Vue3` + `Ts` + `Vite5` + `UnoCss` + `wot-ui` + `z-paging` 构成，使用了最新的前端技术栈，无需依靠 `HBuilderX`，通过命令行方式运行 `web`、`小程序` 和 `App`（编辑器推荐 `VSCode`，可选 `webstorm`）。
+### 4. 支付功能
+- 微信支付集成
+- 支付结果页面
+- 支付倒计时
 
-`unibest` 内置了 `约定式路由`、`layout布局`、`请求封装`、`请求拦截`、`登录拦截`、`UnoCSS`、`i18n多语言` 等基础功能，提供了 `代码提示`、`自动格式化`、`统一配置`、`代码片段` 等辅助功能，让你编写 `uniapp` 拥有 `best` 体验 （ `unibest 的由来`）。
+### 5. 退款功能
+- 在线提交退款申请
+- 退款原因自定义输入
+- 退款进度查看（退款中、已退款、驳回）
 
-![](https://raw.githubusercontent.com/andreasbm/readme/master/screenshots/lines/rainbow.png)
+### 6. 用户系统
+- 微信登录授权
+- 自动登录
+- 登录状态保持
 
-<p align="center">
-  <a href="https://unibest.tech/" target="_blank">📖 文档地址(new)</a>
-  <span style="margin:0 10px;">|</span>
-  <a href="https://unibest-tech.github.io/hello-unibest" target="_blank">📱 DEMO 地址</a>
-</p>
+## 项目结构
 
----
+```
+src/
+├── api/                    # API 接口
+│   ├── order/             # 订单相关接口
+│   ├── pay/               # 支付相关接口
+│   ├── product/           # 商品相关接口
+│   └── types/             # TypeScript 类型定义
+├── components/            # 公共组件
+├── hooks/                 # 组合式函数
+├── http/                  # HTTP 封装
+│   └── tools/             # 工具类（枚举、错误处理）
+├── pages/                 # 页面
+│   ├── auth/login/        # 登录页
+│   ├── index/             # 首页
+│   ├── order/             # 订单相关页面
+│   │   ├── index.vue      # 订单列表
+│   │   ├── detail.vue     # 订单详情
+│   │   └── pay.vue        # 支付页面
+│   ├── product/           # 商品点单页
+│   └── store/             # 门店列表页
+├── store/                 # Pinia 状态管理
+├── styles/                # 全局样式
+├── utils/                 # 工具函数
+│   ├── qrcode.ts          # 二维码/小程序码解析
+│   └── index.ts           # 通用工具
+└── router/                # 路由配置
+```
 
-注意旧的地址 [codercup](https://github.com/codercup/unibest) 我进不去了，使用新的 [feige996](https://github.com/feige996/unibest)。PR和 issue 也请使用新地址，否则无法合并。
+## 核心业务流程
 
-## 平台兼容性
+### 扫码点餐流程
+```
+扫码进入小程序
+    ↓
+解析 scene 参数（获取门店 ID 和桌号）
+    ↓
+登录授权（未登录时）
+    ↓
+设置门店信息
+    ↓
+进入点单页面
+    ↓
+选择商品 → 加入购物车
+    ↓
+提交订单 → 选择桌号
+    ↓
+支付订单
+    ↓
+查看订单状态
+```
 
-| H5  | IOS | 安卓 | 微信小程序 | 字节小程序 | 快手小程序 | 支付宝小程序 | 钉钉小程序 | 百度小程序 |
-| --- | --- | ---- | ---------- | ---------- | ---------- | ------------ | ---------- | ---------- |
-| √   | √   | √    | √          | √          | √          | √            | √          | √          |
+### 退款流程
+```
+订单详情页
+    ↓
+点击"申请退款"（制作中/已完成状态）
+    ↓
+填写退款原因
+    ↓
+提交退款申请
+    ↓
+等待审核（退款中 → 已退款/驳回）
+```
 
-注意每种 `UI框架` 支持的平台有所不同，详情请看各 `UI框架` 的官网，也可以看 `unibest` 文档。
+## 订单状态
 
-## ⚙️ 环境
+| 状态值 | 状态名称 | 说明 | 可操作 |
+|-------|---------|------|-------|
+| 0 | 待支付 | 订单已创建，等待支付 | 取消订单、立即支付 |
+| 1 | 制作中 | 支付完成，商家制作中 | 申请退款 |
+| 2 | 已完成 | 订单完成 | 申请退款 |
+| 3 | 已取消 | 订单已取消 | - |
+| 4 | 退款中 | 退款申请审核中 | - |
+| 5 | 已退款 | 退款完成 | - |
+| 6 | 驳回 | 退款申请被驳回 | - |
 
-- node>=18
-- pnpm>=7.30
-- Vue Official>=2.1.10
-- TypeScript>=5.0
+## 开发命令
 
-## 新版分支 
-- main == base
-- base --> base-i18n
-- base-login --> base-login-i18n
+```bash
+# 安装依赖
+pnpm install
 
-## &#x1F4C2; 快速开始
+# 开发 H5
+pnpm dev:h5
 
-执行 `pnpm create unibest` 创建项目
-执行 `pnpm i` 安装依赖
-执行 `pnpm dev` 运行 `H5`
-执行 `pnpm dev:mp` 运行 `微信小程序`
+# 开发微信小程序
+pnpm dev:mp
 
-## 📦 运行（支持热更新）
+# 构建 H5
+pnpm build:h5
 
-- web平台： `pnpm dev:h5`, 然后打开 [http://localhost:9000/](http://localhost:9000/)。
-- weixin平台：`pnpm dev:mp` 然后打开微信开发者工具，导入本地文件夹，选择本项目的`dist/dev/mp-weixin` 文件。
-- APP平台：`pnpm dev:app`, 然后打开 `HBuilderX`，导入刚刚生成的`dist/dev/app` 文件夹，选择运行到模拟器(开发时优先使用)，或者运行的安卓/ios基座。(如果是 `安卓` 和 `鸿蒙` 平台，则不用这个方式，可以把整个unibest项目导入到hbx，通过hbx的菜单来运行到对应的平台。)
+# 构建微信小程序
+pnpm build:mp
 
-## 🔗 发布
+# 代码检查
+pnpm lint
+pnpm type-check
+```
 
-- web平台： `pnpm build:h5`，打包后的文件在 `dist/build/h5`，可以放到web服务器，如nginx运行。如果最终不是放在根目录，可以在 `manifest.config.ts` 文件的 `h5.router.base` 属性进行修改。
-- weixin平台：`pnpm build:mp`, 打包后的文件在 `dist/build/mp-weixin`，然后通过微信开发者工具导入，并点击右上角的“上传”按钮进行上传。
-- APP平台：`pnpm build:app`, 然后打开 `HBuilderX`，导入刚刚生成的`dist/build/app` 文件夹，选择发行 - APP云打包。(如果是 `安卓` 和 `鸿蒙` 平台，则不用这个方式，可以把整个unibest项目导入到hbx，通过hbx的菜单来发行到对应的平台。)
+## 环境配置
 
-## 📄 License
+项目支持多环境配置，通过 `.env` 文件管理：
 
-[MIT](https://opensource.org/license/mit/)
+- `.env` - 默认环境
+- `.env.development` - 开发环境
+- `.env.production` - 生产环境
 
-Copyright (c) 2025 菲鸽
+## 注意事项
 
-## 捐赠
+1. **微信小程序场景**:
+   - 微信小程序端请求地址需在 `manifest.json` 中配置合法域名
+   - 支付功能需在微信公众平台配置
 
-<p align='center'>
-<img alt="special sponsor appwrite" src="https://oss.laf.run/ukw0y1-site/pay/wepay.png" height="330" style="display:inline-block; height:330px;">
-<img alt="special sponsor appwrite" src="https://oss.laf.run/ukw0y1-site/pay/alipay.jpg" height="330" style="display:inline-block; height:330px; margin-left:10px;">
-</p>
+2. **扫码功能**:
+   - 小程序码的 scene 参数需要在生成时编码
+   - 首页和登录页会自动处理 scene 参数传递
+
+3. **支付功能**:
+   - 需要在微信小程序后台配置支付权限
+   - 测试环境可使用模拟支付
+
+## 开发者
+
+- 作者：菲鸽
+- GitHub: https://github.com/1650987523/sweet-mini
+
+## License
+
+MIT

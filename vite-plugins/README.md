@@ -1,236 +1,180 @@
-# unibest原生插件资源复制插件
+# Sweet Mini - 智能点餐小程序
 
-## 概述
+基于 `unibest` 模板开发的智能点餐小程序，支持扫码点餐、订单管理、支付、退款等功能。
 
-`copy-native-resources.ts` 是一个专为 基于unibest框架的UniApp 项目设计的 Vite 插件，用于解决使用原生插件时打包后出现"插件找不到"的问题。该插件会在构建过程中自动将本地原生插件资源复制到正确的目标目录。
+## 技术栈
 
-## 功能特性
+- **框架**: uni-app + Vue3 + TypeScript + Vite5
+- **UI 库**: uView Plus
+- **状态管理**: Pinia
+- **HTTP 请求**: alova
+- **CSS 方案**: UnoCSS + SCSS
+- **页面滚动**: z-paging
 
-- ✅ 自动复制原生插件资源到构建目录
-- ✅ 支持环境变量控制插件启用/禁用
-- ✅ 支持详细日志输出用于调试
-- ✅ 智能检测源目录是否存在
+## 主要功能
 
-## 目录结构
+### 1. 门店管理
+- 门店列表展示
+- 扫码自动设置门店和桌号
+- 支持小程序码识别（scene 参数解析）
 
-根据 [UniApp 官方文档](https://uniapp.dcloud.net.cn/plugin/native-plugin.html#%E6%9C%AC%E5%9C%B0%E6%8F%92%E4%BB%B6-%E9%9D%9E%E5%86%85%E7%BD%AE%E5%8E%9F%E7%94%9F%E6%8F%92%E4%BB%B6)，本地原生插件应存储在项目根目录的 `nativeplugins` 目录下：
+### 2. 商品点单
+- 商品分类展示
+- 商品详情查看（规格选择、图片轮播）
+- 购物车管理（加减商品、清空）
+- 商品搜索
+
+### 3. 订单系统
+- **订单列表**: 支持按状态筛选（全部、待支付、制作中、已完成、已取消、退款中、已退款、驳回）
+- **订单详情**: 查看订单商品信息、费用明细、订单状态
+- **订单操作**:
+  - 取消订单（待支付状态）
+  - 立即支付（待支付状态）
+  - 申请退款（制作中、已完成状态）
+
+### 4. 支付功能
+- 微信支付集成
+- 支付结果页面
+- 支付倒计时
+
+### 5. 退款功能
+- 在线提交退款申请
+- 退款原因自定义输入
+- 退款进度查看（退款中、已退款、驳回）
+
+### 6. 用户系统
+- 微信登录授权
+- 自动登录
+- 登录状态保持
+
+## 项目结构
 
 ```
-项目根目录/
-├── nativeplugins/                    # 原生插件存储目录（官方规范）
-│   ├── HL-HHWUHFController/         # 示例：RFID 控制器插件
-│   │   ├── android/                 # Android 平台资源
-│   │   │   ├── libs/               # Android 库文件
-│   │   │   └── res/                # Android 资源文件
-│   │   ├── ios/                    # iOS 平台资源（如果有）
-│   │   └── package.json            # 插件配置文件
-│   └── 其他原生插件/
-├── src/
-├── vite-plugins/
-│   ├── copy-native-resources.ts    # 本插件文件
-│   └── README.md                   # 本文档
-└── vite.config.ts
+src/
+├── api/                    # API 接口
+│   ├── order/             # 订单相关接口
+│   ├── pay/               # 支付相关接口
+│   ├── product/           # 商品相关接口
+│   └── types/             # TypeScript 类型定义
+├── components/            # 公共组件
+├── hooks/                 # 组合式函数
+├── http/                  # HTTP 封装
+│   └── tools/             # 工具类（枚举、错误处理）
+├── pages/                 # 页面
+│   ├── auth/login/        # 登录页
+│   ├── index/             # 首页
+│   ├── order/             # 订单相关页面
+│   │   ├── index.vue      # 订单列表
+│   │   ├── detail.vue     # 订单详情
+│   │   └── pay.vue        # 支付页面
+│   ├── product/           # 商品点单页
+│   └── store/             # 门店列表页
+├── store/                 # Pinia 状态管理
+├── styles/                # 全局样式
+├── utils/                 # 工具函数
+│   ├── qrcode.ts          # 二维码/小程序码解析
+│   └── index.ts           # 通用工具
+└── router/                # 路由配置
 ```
 
-## 安装配置
+## 核心业务流程
 
-### 1. 环境变量配置
+### 扫码点餐流程
+```
+扫码进入小程序
+    ↓
+解析 scene 参数（获取门店 ID 和桌号）
+    ↓
+登录授权（未登录时）
+    ↓
+设置门店信息
+    ↓
+进入点单页面
+    ↓
+选择商品 → 加入购物车
+    ↓
+提交订单 → 选择桌号
+    ↓
+支付订单
+    ↓
+查看订单状态
+```
 
-在 `env/.env` 文件中添加以下配置：
+### 退款流程
+```
+订单详情页
+    ↓
+点击"申请退款"（制作中/已完成状态）
+    ↓
+填写退款原因
+    ↓
+提交退款申请
+    ↓
+等待审核（退款中 → 已退款/驳回）
+```
+
+## 订单状态
+
+| 状态值 | 状态名称 | 说明 | 可操作 |
+|-------|---------|------|-------|
+| 0 | 待支付 | 订单已创建，等待支付 | 取消订单、立即支付 |
+| 1 | 制作中 | 支付完成，商家制作中 | 申请退款 |
+| 2 | 已完成 | 订单完成 | 申请退款 |
+| 3 | 已取消 | 订单已取消 | - |
+| 4 | 退款中 | 退款申请审核中 | - |
+| 5 | 已退款 | 退款完成 | - |
+| 6 | 驳回 | 退款申请被驳回 | - |
+
+## 开发命令
 
 ```bash
-# 是否启用原生插件资源复制
-VITE_COPY_NATIVE_RES_ENABLE = true
+# 安装依赖
+pnpm install
+
+# 开发 H5
+pnpm dev:h5
+
+# 开发微信小程序
+pnpm dev:mp
+
+# 构建 H5
+pnpm build:h5
+
+# 构建微信小程序
+pnpm build:mp
+
+# 代码检查
+pnpm lint
+pnpm type-check
 ```
 
-### 2. Vite 配置
+## 环境配置
 
-在 `vite.config.ts` 中引入并使用插件：
+项目支持多环境配置，通过 `.env` 文件管理：
 
-```typescript
-import { createCopyNativeResourcesPlugin } from './vite-plugins/copy-native-resources'
+- `.env` - 默认环境
+- `.env.development` - 开发环境
+- `.env.production` - 生产环境
 
-export default defineConfig({
-  plugins: [
-    // 其他插件...
-    
-    // 原生插件资源复制插件
-    createCopyNativeResourcesPlugin(
-      UNI_PLATFORM === 'app' && VITE_COPY_NATIVE_RES_ENABLE === 'true',
-      {
-        verbose: mode === 'development', // 开发模式显示详细日志
-      },
-    ),
-    
-    // 其他插件...
-  ],
-})
-```
+## 注意事项
 
-### 3. manifest.config.ts 配置
+1. **微信小程序场景**:
+   - 微信小程序端请求地址需在 `manifest.json` 中配置合法域名
+   - 支付功能需在微信公众平台配置
 
-在 `manifest.config.ts` 中配置原生插件：
+2. **扫码功能**:
+   - 小程序码的 scene 参数需要在生成时编码
+   - 首页和登录页会自动处理 scene 参数传递
 
-```typescript
-export default defineManifest({
-  // 其他配置...
-  
-  'app-plus': {
-    // 其他配置...
-    
-    // 原生插件配置
-    nativePlugins: {
-      // RFID 控制器插件示例
-      'HL-HHWUHFController': {
-        __plugin_info__: {
-          name: 'HL-HHWUHFController',
-          description: 'RFID UHF 控制器插件',
-          platforms: 'Android',
-          url: '',
-          android_package_name: '',
-          ios_bundle_id: '',
-          isCloud: false,
-          bought: -1,
-          pid: '',
-          parameters: {}
-        }
-      }
-    }
-  }
-})
-```
+3. **支付功能**:
+   - 需要在微信小程序后台配置支付权限
+   - 测试环境可使用模拟支付
 
-## 插件配置选项
+## 开发者
 
-```typescript
-interface CopyNativeResourcesOptions {
-  /** 是否启用插件 */
-  enable?: boolean
-  
-  /** 
-   * 源目录路径，相对于项目根目录
-   * 默认为 'nativeplugins'，符合 UniApp 官方规范
-   */
-  sourceDir?: string
-  
-  /** 
-   * 目标目录名称，构建后在 dist 目录中的文件夹名
-   * 默认为 'nativeplugins'，与源目录保持一致
-   */
-  targetDirName?: string
-  
-  /** 是否显示详细日志 */
-  verbose?: boolean
-}
-```
+- 作者：菲鸽
+- GitHub: https://github.com/1650987523/sweet-mini
 
-## 使用示例
+## License
 
-### 基础使用
-
-```typescript
-// 使用默认配置
-createCopyNativeResourcesPlugin(true)
-```
-
-### 自定义配置
-
-```typescript
-// 自定义配置
-createCopyNativeResourcesPlugin(true, {
-  sourceDir: 'nativeplugins',      // 源目录
-  targetDirName: 'nativeplugins',  // 目标目录名
-  verbose: true                    // 显示详细日志
-})
-```
-
-### 条件启用
-
-```typescript
-// 仅在 app 平台且环境变量启用时生效
-createCopyNativeResourcesPlugin(
-  UNI_PLATFORM === 'app' && VITE_COPY_NATIVE_RES_ENABLE === 'true',
-  { verbose: mode === 'development' }
-)
-```
-
-## 工作原理
-
-1. **构建时机**：插件在 Vite 的 `writeBundle` 阶段执行
-2. **目录检测**：检查源目录 `nativeplugins` 是否存在
-3. **资源复制**：将整个 `nativeplugins` 目录复制到构建输出目录
-4. **路径处理**：自动处理不同平台的路径差异
-5. **日志输出**：根据配置显示复制过程的详细信息
-
-## 构建输出结构
-
-插件会将原生插件资源复制到以下位置：
-
-```
-dist/
-├── build/
-│   └── app/
-│       └── nativeplugins/          # 生产环境构建
-│           └── HL-HHWUHFController/
-└── dev/
-    └── app/
-        └── nativeplugins/          # 开发环境构建
-            └── HL-HHWUHFController/
-```
-
-## 常见问题
-
-### Q: 为什么要使用这个插件？
-
-A: 目前使用unibest框架在打包时可能不会自动复制原生插件资源，导致运行时出现"插件找不到"的错误。此插件确保原生插件资源被正确复制到构建目录。
-
-### Q: 插件不生效怎么办？
-
-A: 检查以下几点：
-1. 确认 `nativeplugins` 目录存在且包含插件文件
-2. 确认环境变量 `VITE_COPY_NATIVE_RES_ENABLE` 设置为 `true`
-3. 确认当前平台为 `app`（插件仅在 app 平台生效）
-4. 开启 `verbose: true` 查看详细日志
-
-### Q: 可以自定义源目录吗？
-
-A: 可以，但不推荐。UniApp 官方规范要求使用 `nativeplugins` 目录，自定义可能导致其他问题。
-
-### Q: 支持哪些平台？
-
-A: 插件本身支持所有平台，但通常只在 `app` 平台（目前只测试了Android环境，iOS有条件的伙伴可以测试后反馈）使用原生插件。
-
-
-### Q: 产生权限冲突问题？
-
-A: 有伙伴反馈过接入的原生插件之前使用【Lastly1999】提交的版本初步解决了问题，但是又遇到两个新的问题：
-- 导入的两个插件内的权限配置有版本冲突,在云打包的最后一步会报错,然后通过修改其中一个aar配置版本解决的。
-- 测试发现在android版本大于12的手机，获取相册权限后，打开相册看不到里面的照片，将两个插件删除就没问题 ，可以正常显示，不删除就会有问题，怀疑是插件的AndroidManifest.xml覆盖了项目内manifest.config.ts的安卓权限申请
-也欢迎其他有伙伴反馈，望能一起解决。
-
-## 更新日志
-
-### v1.0.0
-- 初始版本发布
-- 支持基础的原生插件资源复制功能
-
-### v1.1.0
-- 更新为符合 UniApp 官方规范的 `nativeplugins` 目录结构
-- 修复 ESLint 警告
-- 增加详细的代码注释和文档
-- 优化错误处理和日志输出
-
-## 技术支持
-
-如果在使用过程中遇到问题，请检查：
-
-1. UniApp 官方文档：[本地插件配置](https://uniapp.dcloud.net.cn/plugin/native-plugin.html#%E6%9C%AC%E5%9C%B0%E6%8F%92%E4%BB%B6-%E9%9D%9E%E5%86%85%E7%BD%AE%E5%8E%9F%E7%94%9F%E6%8F%92%E4%BB%B6)
-2. 插件配置是否正确
-3. 目录结构是否符合规范
-4. 环境变量是否正确设置
-
-## 特别声明及感谢
-
-- 感谢【Lastly1999】，此插件时基于他pr的代码进行的还原和修改。[fix: app-plus、dev/prod、nativeResources插件未被正确移](https://gitee.com/feige996/unibest/commit/22e0bd5cfb47a4927373fe88be6809216f43d046)
-- 感谢【菲鸽】造了这么好用的框架
-
+MIT

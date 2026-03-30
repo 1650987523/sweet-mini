@@ -9,7 +9,7 @@
 ### 微信小程序体验（开发版）
 
 <div align="center">
-  <img src="./assets/qrcode-dev.jpg" alt="开发版小程序码" width="200" height="200" />
+  <img src="./product_qrcode_1-A02.png" alt="开发版小程序码" width="200" height="200" />
   <p>微信扫一扫，体验开发版小程序</p>
 </div>
 
